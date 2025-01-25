@@ -1,11 +1,26 @@
+<!-- 仅script.js变化，其他保持原样 -->
+<script>
 async function queryScore() {
     const myid = document.getElementById("myid").value.trim().toUpperCase();
     const name = document.getElementById("name").value.trim();
     const resultDiv = document.getElementById("result");
 
     try {
-        const response = await fetch('scores.json');
-        const allscore = await response.json();
+        // 定义要加载的JSON文件列表
+        const files = ['data.json', 'data2.json', 'data3.json', 'data4.json', 'data5.json', 'data6.json', 'data7.json', 'data8.json', 'data9.json', 'data10.json']; // 在此添加更多JSON文件
+        
+        // 并行加载所有JSON文件
+        const responses = await Promise.allSettled(
+            files.map(file => fetch(file).then(res => res.json()))
+        );
+
+        // 合并所有成功加载的数据
+        const allscore = responses.reduce((acc, response) => {
+            if (response.status === 'fulfilled') {
+                acc.push(...response.value);
+            }
+            return acc;
+        }, []);
 
         resultDiv.classList.remove('success', 'error');
         resultDiv.style.display = 'none';
@@ -30,3 +45,4 @@ async function queryScore() {
         console.error('Error:', error);
     }
 }
+</script>
