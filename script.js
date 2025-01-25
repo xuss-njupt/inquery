@@ -4,7 +4,7 @@ async function queryScore() {
     const resultDiv = document.getElementById("result");
 
     try {
-        const response = await fetch('data.json');
+        const response = await fetch('scores.json');
         const allscore = await response.json();
 
         resultDiv.classList.remove('success', 'error');
