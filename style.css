@@ -87,3 +87,48 @@ label {
     color: #e74c3c;
     border: 2px solid #e74c3c;
 }
+
+/* 移动端优化 */
+@media (max-width: 480px) {
+    .container {
+        padding: 15px;
+        margin: 10px;
+        border-radius: 10px;
+    }
+
+    h1 {
+        font-size: 1.8rem;
+        margin-bottom: 20px;
+    }
+
+    .input-group {
+        margin-bottom: 18px;
+    }
+
+    .form-input {
+        padding: 10px;
+        font-size: 1rem;
+        border-width: 1px;
+    }
+
+    .submit-btn {
+        padding: 12px;
+        font-size: 1.1rem;
+    }
+
+    .result-box {
+        font-size: 1.1rem;
+        padding: 15px;
+        margin-top: 20px;
+    }
+}
+
+@media (max-width: 320px) {
+    h1 {
+        font-size: 1.6rem;
+    }
+    
+    .form-input {
+        font-size: 0.95rem;
+    }
+}
