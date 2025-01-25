@@ -5,7 +5,7 @@ async function queryScore() {
 
     try {
         // 需要加载的JSON文件列表（可自由添加）
-		const urls = Array.from({length: 20}, (_, i) => `data/data${i+1}.json`);
+		const urls = Array.from({length: 20}, (_, i) => `data/data${i}.json`);
 
         // 并行加载所有JSON文件
         const responses = await Promise.all(
