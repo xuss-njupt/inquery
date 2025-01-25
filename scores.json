@@ -2,11 +2,11 @@
     {
         "myid": "B1001",
         "name": "张三",
-        "score": 58
+        "score": "58"
     },
     {
         "myid": "B1002",
         "name": "李四",
-        "score": 97
+        "score": "97"
     }
 ]
