@@ -1,12 +1,12 @@
 [
     {
         "myid": "B3001",
-        "name": 123,
-        "score": 41
+        "name": "123",
+        "score": "41"
     },
     {
         "myid": "B3002",
-        "name": 234,
-        "score": 55
+        "name": "234",
+        "score": "55"
     }
 ]
