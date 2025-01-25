@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>多数据源成绩查询系统</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>多数据源成绩查询</h1>
+        
+        <div class="input-group">
+            <label for="myid">学号：</label>
+            <input type="text" id="myid" class="form-input" 
+                   placeholder="例如：B21080201" required>
+        </div>
+        
+        <div class="input-group">
+            <label for="name">姓名：</label>
+            <input type="text" id="name" class="form-input" 
+                   placeholder="请输入完整姓名" required>
+        </div>
+        
+        <button class="submit-btn" onclick="queryScore()">立即查询</button>
+        <div id="result" class="result-box"></div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
