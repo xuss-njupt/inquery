@@ -1,41 +1,59 @@
-let dataPromise = null; // 全局变量保存数据加载的Promise
+let studentMap = null; // 使用Map结构存储索引数据
 
-// 在页面加载时自动加载数据
+// 页面加载时自动构建索引
 document.addEventListener('DOMContentLoaded', () => {
-    dataPromise = loadData().catch(error => {
+    loadData().then(map => {
+        studentMap = map;
+    }).catch(error => {
         const resultDiv = document.getElementById('result');
         resultDiv.innerHTML = '成绩数据初始化失败，请刷新页面重试';
         resultDiv.className = 'result-box error';
         resultDiv.style.display = 'block';
-        throw error; // 继续抛出错误以便后续处理
+        console.error('索引构建失败:', error);
     });
 });
 
 async function loadData() {
     try {
-        // 需要加载的JSON文件列表
+        // 并行加载优化（示例保持20个文件）
         const urls = Array.from({length: 20}, (_, i) => `data/data${i}.json`);
         
-        // 并行加载所有JSON文件
-        const responses = await Promise.all(
-            urls.map(url => fetch(url)
-                .catch(error => {
-                    console.warn(`文件 ${url} 加载失败`, error);
-                    return null;
-                }))
+        // 改进的并行加载（带超时机制）
+        const fetchPromises = urls.map(url => 
+            Promise.race([
+                fetch(url),
+                new Promise((_, reject) => 
+                    setTimeout(() => reject(new Error('请求超时')), 5000)
+                )
+            ]).catch(e => {
+                console.warn(`文件 ${url} 加载失败: ${e.message}`);
+                return null;
+            })
         );
 
-        // 过滤并验证响应
-        const validResponses = responses.filter(res => res && res.ok);
-        if (validResponses.length === 0) {
-            throw new Error('所有数据文件加载失败');
-        }
-
-        // 解析并合并数据
-        const dataArrays = await Promise.all(
-            validResponses.map(res => res.json())
+        const responses = await Promise.all(fetchPromises);
+        
+        // 构建内存索引
+        const map = new Map();
+        await Promise.all(
+            responses.filter(Boolean).map(async res => {
+                if (!res.ok) return;
+                const students = await res.json();
+                students.forEach(student => {
+                    // 数据预处理（统一格式）
+                    const key = `${student.myid.toUpperCase()}_${student.name.trim()}`;
+                    // 内存优化：仅保留必要字段
+                    map.set(key, { 
+                        score: student.score,
+                        name: student.name,
+                        myid: student.myid
+                    });
+                });
+            })
         );
-        return dataArrays.flat();
+
+        if (map.size === 0) throw new Error('所有数据加载失败');
+        return map;
     } catch (error) {
         console.error('数据加载失败:', error);
         throw error;
@@ -43,24 +61,40 @@ async function loadData() {
 }
 
 async function queryScore() {
-    const myid = document.getElementById("myid").value.trim().toUpperCase();
-    const name = document.getElementById("name").value.trim();
+    const rawMyid = document.getElementById("myid").value;
+    const rawName = document.getElementById("name").value;
     const resultDiv = document.getElementById("result");
 
-    // 重置显示状态
-    resultDiv.classList.remove('success', 'error');
-    resultDiv.style.display = 'none';
+    // 即时输入处理
+    const myid = rawMyid.trim().toUpperCase();
+    const name = rawName.trim();
+    
+    // 提前验证基础输入
+    if (!myid || !name) {
+        showError('请输入完整的学号和姓名');
+        return;
+    }
 
+    // 使用索引键查询
+    const searchKey = `${myid}_${name}`;
+    
     try {
-        // 等待数据加载完成
-        const allStudents = await dataPromise;
+        if (!studentMap) {
+            showError('数据尚未加载完成，请稍候');
+            return;
+        }
 
-        // 执行学生信息匹配
-        const student = allStudents.find(item => 
-            item.myid === myid && item.name === name
-        );
+        const student = studentMap.get(searchKey);
+        showResult(student);
+    } catch (error) {
+        console.error('查询异常:', error);
+        showError('查询过程中发生异常');
+    }
 
-        // 显示查询结果
+    function showResult(student) {
+        resultDiv.classList.remove('success', 'error');
+        resultDiv.style.display = 'none';
+        
         if (student) {
             resultDiv.innerHTML = `尊敬的${student.name}(${student.myid})同学，<br>本次测试成绩为：<strong>${student.score}分.</strong>`;
             resultDiv.className = 'result-box success';
@@ -68,13 +102,13 @@ async function queryScore() {
             resultDiv.innerHTML = '未找到匹配的学生信息，请检查：<br>1. 学号姓名是否正确<br>2. 是否在考试名单中';
             resultDiv.className = 'result-box error';
         }
-        
         resultDiv.style.display = 'block';
-    } catch (error) {
-        // 异常处理
-        resultDiv.innerHTML = '数据尚未加载完成，请稍后重试';
+    }
+
+    function showError(msg) {
+        resultDiv.classList.remove('success', 'error');
+        resultDiv.innerHTML = msg;
         resultDiv.className = 'result-box error';
         resultDiv.style.display = 'block';
-        console.error('查询错误:', error);
     }
 }
