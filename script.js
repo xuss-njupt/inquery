@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
 async function loadData() {
     try {
         // 并行加载优化（示例保持20个文件）
-        const urls = Array.from({length: 20}, (_, i) => `data/data${i}.json`);
+        const urls = Array.from({length: 10}, (_, i) => `data/data${i}.json`);
         
         // 改进的并行加载（带超时机制）
         const fetchPromises = urls.map(url => 
